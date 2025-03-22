@@ -8,6 +8,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import Login from './screens/Login';
 import Home from './screens/Home';
 import Registro from './screens/Registro';
+import Payment from './screens/payment';
+
 
 export default function App() {
 
@@ -16,6 +18,7 @@ const Stack = createStackNavigator();
 function MyStack() {
   return (
     <Stack.Navigator>
+      {/*
       <Stack.Screen name="Login" component={Login} 
       options={{
         title: "LOGIN",
@@ -23,6 +26,7 @@ function MyStack() {
         headerTitleAlign: "center",
         headerStyle: {backgroundColor: "#525FE1"},
       }} />
+       */}
       <Stack.Screen name="Home" component={Home} 
       options={{
         title: "HOME",
@@ -37,6 +41,7 @@ function MyStack() {
         headerTitleAlign: "center",
         headerStyle: {backgroundColor: "#525FE1"},
       }} />
+      <Stack.Screen name='Payment' component={Payment}></Stack.Screen>
     </Stack.Navigator>
   );
 }
