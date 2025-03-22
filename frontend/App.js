@@ -8,8 +8,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import Login from './screens/Login';
 import Home from './screens/Home';
 import Registro from './screens/Registro';
-import Payment from './screens/payment';
-
+import Payment from './screens/Payment';
 
 export default function App() {
 
@@ -27,13 +26,7 @@ function MyStack() {
         headerStyle: {backgroundColor: "#525FE1"},
       }} />
        */}
-      <Stack.Screen name="Home" component={Home} 
-      options={{
-        title: "HOME",
-        headerTintColor: "white",
-        headerTitleAlign: "center",
-        headerStyle: {backgroundColor: "#525FE1"}
-      }} />
+      <Stack.Screen name="Home" component={Home}  />
       <Stack.Screen name="Registro" component={Registro } 
       options={{
         title: "REGISTER",

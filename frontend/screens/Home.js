@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-export default function App() {
+export default function Home(props) {
   
   return (
     <LinearGradient colors={['#1E1E1E', '#333333']} style={styles .container}>
@@ -33,11 +33,12 @@ export default function App() {
       {/* Barra inferior con botones */}
       <View style={styles.bottomBar}>
         <TouchableOpacity style={styles.smallButton} onPress={() => alert('Ver Rutas')}>
+
           <MaterialIcons name="route" size={30} color="white" />
           <Text style={styles.buttonText}>Rutas</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.bigButton} onPress={() => alert('Pagos 💰')}>
+        <TouchableOpacity style={styles.bigButton} onPress={() => props.navigation.navigate('Payment')}>
           <Ionicons name="cash-outline" size={45} color="white" />
           <Text style={styles.bigButtonText}>Pagos</Text>
         </TouchableOpacity>
