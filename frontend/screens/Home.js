@@ -30,10 +30,10 @@ export default function Home(props) {
   />
    </View>
 
-      {/* Barra inferior con botones */}
+      {/* Barra inferior con botones 
+      QUITAR EL ALERT Y AGREAR props.navigation.navigate() Y AGREGAR EL NOMBRE QUE LE DISTE A LA RUTA*/}
       <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.smallButton} onPress={() => props.navigation.navigate('Diseno')}>
-
+        <TouchableOpacity style={styles.smallButton} onPress={() => alert('rutas')}> 
           <MaterialIcons name="route" size={30} color="white" />
           <Text style={styles.buttonText}>Rutas</Text>
         </TouchableOpacity>
