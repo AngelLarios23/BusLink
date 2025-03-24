@@ -8,6 +8,7 @@ import Login from './screens/Login';
 import Home from './screens/Home';
 import Registro from './screens/Registro';
 import Payment from './screens/Payment';
+import BalanceScreen from './screens/BalanceScreen'
 
 export default function App() {
 
@@ -34,6 +35,7 @@ function MyStack() {
         headerStyle: {backgroundColor: "#525FE1"},
       }} />
       <Stack.Screen name='Payment' component={Payment}></Stack.Screen>
+      <Stack.Screen name="BalanceScreen" component={BalanceScreen} />
     </Stack.Navigator>
   );
 }

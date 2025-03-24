@@ -7,9 +7,11 @@ import { Ionicons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function Home(props) {
-  
+  // Suponemos que el saldo y los pasajes se pasan como parámetros desde la pantalla anterior
+  const { saldo, pasajes } = props.route.params || { saldo: 0, pasajes: 0 };
+
   return (
-    <LinearGradient colors={['#1E1E1E', '#333333']} style={styles .container}>
+    <LinearGradient colors={['#1E1E1E', '#333333']} style={styles.container}>
       <StatusBar style="light" />
       {/* Barra superior con perfil y saldo */}
       <View style={styles.topBar}>
@@ -17,23 +19,22 @@ export default function Home(props) {
           <Ionicons name="person-circle-outline" size={40} color="white" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.balanceButton} onPress={() => alert('Saldo: $500')}>
-          <Text style={styles.balanceText}>💰 $500</Text>
+        <TouchableOpacity style={styles.balanceButton} onPress={() => props.navigation.navigate('BalanceScreen')}>
+          <Text style={styles.balanceText}>💰 ${saldo} - {pasajes} pasajes</Text>
         </TouchableOpacity>
       </View>
 
       {/* Mapa en el centro con funcionalidad de botón */}
       <View style={styles.mapContainer}>
-  <MapView 
-    style={styles.map} 
-    onPress={() => alert('Mapa presionado')} 
-  />
-   </View>
+        <MapView 
+          style={styles.map} 
+          onPress={() => alert('Mapa presionado')} 
+        />
+      </View>
 
-      {/* Barra inferior con botones 
-      QUITAR EL ALERT Y AGREAR props.navigation.navigate() Y AGREGAR EL NOMBRE QUE LE DISTE A LA RUTA*/}
+      {/* Barra inferior con botones */}
       <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.smallButton} onPress={() => alert('rutas')}> 
+        <TouchableOpacity style={styles.smallButton} onPress={() => alert('Rutas')}>
           <MaterialIcons name="route" size={30} color="white" />
           <Text style={styles.buttonText}>Rutas</Text>
         </TouchableOpacity>
@@ -51,8 +52,8 @@ export default function Home(props) {
     </LinearGradient>
   );
 }
-const { width, height } = Dimensions.get('window');
 
+const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -92,7 +93,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  
+
   // Contenedor del mapa con funcionalidad de botón
   mapContainer: {
     flex: 1,

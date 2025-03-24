@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Modal } from "react-native";
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function App() {
   const [saldo, setSaldo] = useState(11.00); // Saldo inicial en pesos
   const [mostrarHistorial, setMostrarHistorial] = useState(false); // Estado para mostrar historial
+  const [mostrarModal, setMostrarModal] = useState(false); // Estado para mostrar el modal de CLABE
   const pasajes = Math.floor(saldo / 11); // Conversión de saldo a pasajes
   const clabe = "1234 5678 9012 3456"; // CLABE para depósitos
 
@@ -21,13 +23,17 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={['#1E1E1E', '#333333']} style={styles.container}>
       <Text style={styles.header}>Consulta tu saldo YoVoy</Text>
 
-      <View style={styles.clabeContainer}>
+      {/* TouchableOpacity para todo el contenedor de CLABE */}
+      <TouchableOpacity
+        style={styles.clabeContainer}
+        onPress={() => setMostrarModal(true)} // Abre el modal cuando se presiona
+      >
         <Text style={styles.clabeLabel}>Depósito a esta CLABE:</Text>
         <Text style={styles.clabe}>{clabe}</Text>
-      </View>
+      </TouchableOpacity>
 
       <View style={styles.balanceContainer}>
         <Text style={styles.balanceLabel}>Saldo disponible</Text>
@@ -64,70 +70,95 @@ export default function App() {
         <MaterialIcons name="add-circle-outline" size={24} color="white" />
         <Text style={styles.buttonText}>Recargar saldo</Text>
       </TouchableOpacity>
-    </View>
+
+      {/* Modal para mostrar la CLABE en grande */}
+      <Modal
+        visible={mostrarModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setMostrarModal(false)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalText}>Depósito a esta CLABE:</Text>
+            <Text style={styles.modalClabe}>{clabe}</Text>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setMostrarModal(false)}
+            >
+              <Text style={styles.closeButtonText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </LinearGradient>
   );
 }
+
+const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
+    padding: width * 0.05, // Ajuste con porcentaje
   },
   header: {
-    fontSize: 24,
+    fontSize: width * 0.06, // Ajuste con porcentaje
     fontWeight: "bold",
-    marginBottom: 20,
+    color: "white",
+    marginBottom: height * 0.03, // Ajuste con porcentaje
   },
   clabeContainer: {
-    backgroundColor: "#fff",
-    padding: 15,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    padding: height * 0.02, // Ajuste con porcentaje
     borderRadius: 10,
-    marginBottom: 20,
+    marginBottom: height * 0.03, // Ajuste con porcentaje
     alignItems: "center",
     width: "90%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
   },
   clabeLabel: {
-    fontSize: 16,
+    fontSize: width * 0.04, // Ajuste con porcentaje
     fontWeight: "bold",
-    color: "#555",
+    color: "#FFF",
   },
   clabe: {
-    fontSize: 18,
+    fontSize: width * 0.045, // Ajuste con porcentaje
     color: "#007AFF",
     fontWeight: "bold",
-    marginTop: 5,
+    marginTop: height * 0.01, // Ajuste con porcentaje
   },
   balanceContainer: {
-    backgroundColor: "#fff",
-    padding: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    padding: height * 0.03, // Ajuste con porcentaje
     borderRadius: 10,
     alignItems: "center",
     width: "90%",
+    marginBottom: height * 0.03, // Ajuste con porcentaje
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
   },
   balanceLabel: {
-    fontSize: 18,
-    color: "#888",
+    fontSize: width * 0.045, // Ajuste con porcentaje
+    color: "#FFF",
   },
   balance: {
-    fontSize: 32,
+    fontSize: width * 0.08, // Ajuste con porcentaje
     fontWeight: "bold",
-    marginVertical: 10,
+    color: "#FFF",
+    marginVertical: height * 0.02, // Ajuste con porcentaje
   },
   pasajes: {
-    fontSize: 18,
+    fontSize: width * 0.045, // Ajuste con porcentaje
     fontWeight: "bold",
     color: "#007AFF",
   },
@@ -135,56 +166,89 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#007AFF",
-    padding: 15,
+    padding: height * 0.02, // Ajuste con porcentaje
     borderRadius: 10,
-    marginTop: 20,
+    marginTop: height * 0.03, // Ajuste con porcentaje
     width: "90%",
     justifyContent: "center",
   },
   historyButtonText: {
     color: "white",
-    fontSize: 18,
-    marginLeft: 10,
+    fontSize: width * 0.045, // Ajuste con porcentaje
+    marginLeft: width * 0.02, // Ajuste con porcentaje
   },
   historialContainer: {
-    marginTop: 20,
+    marginTop: height * 0.03, // Ajuste con porcentaje
     width: "90%",
     backgroundColor: "#fff",
-    padding: 15,
+    padding: height * 0.02, // Ajuste con porcentaje
     borderRadius: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
   },
   historialHeader: {
-    fontSize: 18,
+    fontSize: width * 0.045, // Ajuste con porcentaje
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: height * 0.02, // Ajuste con porcentaje
   },
   historialItem: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 5,
+    paddingVertical: height * 0.015, // Ajuste con porcentaje
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
   historialText: {
-    fontSize: 16,
+    fontSize: width * 0.04, // Ajuste con porcentaje
   },
   button: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#4CAF50",
-    padding: 15,
+    padding: height * 0.02, // Ajuste con porcentaje
     borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: height * 0.02, // Ajuste con porcentaje
     justifyContent: "center",
   },
   buttonText: {
     color: "white",
-    fontSize: 18,
-    marginLeft: 10,
+    fontSize: width * 0.045, // Ajuste con porcentaje
+    marginLeft: width * 0.02, // Ajuste con porcentaje
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+  },
+  modalContainer: {
+    width: "90%",
+    padding: height * 0.03, // Ajuste con porcentaje
+    backgroundColor: "white",
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalText: {
+    fontSize: width * 0.06, // Ajuste con porcentaje
+    fontWeight: "bold",
+  },
+  modalClabe: {
+    fontSize: width * 0.08, // Ajuste con porcentaje
+    fontWeight: "bold",
+    color: "#007AFF",
+    marginVertical: height * 0.02, // Ajuste con porcentaje
+  },
+  closeButton: {
+    backgroundColor: "#FF6347",
+    padding: height * 0.015, // Ajuste con porcentaje
+    borderRadius: 10,
+    marginTop: height * 0.02, // Ajuste con porcentaje
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: width * 0.045, // Ajuste con porcentaje
   },
 });
