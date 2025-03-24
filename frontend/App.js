@@ -9,6 +9,8 @@ import Home from './screens/Home';
 import Registro from './screens/Registro';
 import Payment from './screens/Payment';
 import BalanceScreen from './screens/BalanceScreen'
+import Chats from './screens/Chats'
+
 
 export default function App() {
 
@@ -36,6 +38,7 @@ function MyStack() {
       }} />
       <Stack.Screen name='Payment' component={Payment}></Stack.Screen>
       <Stack.Screen name="BalanceScreen" component={BalanceScreen} />
+      <Stack.Screen name="Chats" component={Chats} />
     </Stack.Navigator>
   );
 }

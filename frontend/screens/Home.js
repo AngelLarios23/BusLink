@@ -44,9 +44,9 @@ export default function Home(props) {
           <Text style={styles.bigButtonText}>Pagos</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.smallButton} onPress={() => alert('Comunidad')}>
+        <TouchableOpacity style={styles.smallButton} onPress={() => props.navigation.navigate('Chats')}>
           <MaterialIcons name="group" size={30} color="white" />
-          <Text style={styles.buttonText}>Comunidad</Text>
+          <Text style={styles.buttonText}>Ayuda</Text>
         </TouchableOpacity>
       </View>
     </LinearGradient>
