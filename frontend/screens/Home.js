@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Dimensions, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { Dimensions, StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
 import MapView from 'react-native-maps';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,8 +7,21 @@ import { Ionicons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function Home(props) {
-  // Suponemos que el saldo y los pasajes se pasan como parámetros desde la pantalla anterior
   const { saldo, pasajes } = props.route.params || { saldo: 0, pasajes: 0 };
+  const [showPinModal, setShowPinModal] = React.useState(false);
+  const [pin, setPin] = React.useState('');
+  const correctPin = '1234'; // Cambia esto por tu PIN real
+
+  const verifyPin = () => {
+    if (pin === correctPin) {
+      setShowPinModal(false);
+      setPin('');
+      props.navigation.navigate('Administrador');
+    } else {
+      Alert.alert('Error', 'PIN incorrecto');
+      setPin('');
+    }
+  };
 
   return (
     <LinearGradient colors={['#1E1E1E', '#333333']} style={styles.container}>
@@ -21,6 +34,14 @@ export default function Home(props) {
 
         <TouchableOpacity style={styles.balanceButton} onPress={() => props.navigation.navigate('BalanceScreen')}>
           <Text style={styles.balanceText}>💰 ${saldo} - {pasajes} pasajes</Text>
+        </TouchableOpacity>
+
+        {/* Botón de ayuda (signo de interrogación) CON PIN */}
+        <TouchableOpacity 
+          style={styles.helpButton} 
+          onPress={() => setShowPinModal(true)}
+        >
+          <Ionicons name="help-circle-outline" size={40} color="white" />
         </TouchableOpacity>
       </View>
 
@@ -49,6 +70,44 @@ export default function Home(props) {
           <Text style={styles.buttonText}>Ayuda</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Modal para el PIN */}
+      <Modal
+        visible={showPinModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowPinModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Ingrese PIN de administrador</Text>
+            <TextInput
+              style={styles.pinInput}
+              value={pin}
+              onChangeText={setPin}
+              keyboardType="numeric"
+              secureTextEntry
+              maxLength={4}
+              placeholder="PIN"
+              placeholderTextColor="#999"
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.modalButtonCancel}
+                onPress={() => setShowPinModal(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.modalButtonSubmit}
+                onPress={verifyPin}
+              >
+                <Text style={styles.modalButtonText}>Aceptar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </LinearGradient>
   );
 }
@@ -93,8 +152,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-
-  // Contenedor del mapa con funcionalidad de botón
+  helpButton: {
+    padding: 5,
+  },
   mapContainer: {
     flex: 1,
     width: '90%',
@@ -103,15 +163,12 @@ const styles = StyleSheet.create({
     marginTop: height * 0.05,
     marginBottom: height * 0.1,
   },
-
-  // Estilos del mapa ajustados dinámicamente
   map: {
     width: '110%',
-    height: '72%', // Ajuste proporcional
+    height: '72%',
     borderRadius: 20,
     overflow: 'hidden',
   },
-
   bottomBar: {
     position: 'absolute',
     bottom: height * 0.02,
@@ -166,5 +223,60 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 5,
+  },
+  // Estilos para el modal del PIN
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.7)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#333',
+    borderRadius: 10,
+    padding: 20,
+    borderWidth: 2,
+    borderColor: '#FFD700',
+  },
+  modalTitle: {
+    color: '#FFA500',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  pinInput: {
+    backgroundColor: '#1a1a1a',
+    color: 'white',
+    fontSize: 18,
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 20,
+    textAlign: 'center',
+    borderWidth: 1,
+    borderColor: '#FFA500',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalButtonCancel: {
+    backgroundColor: '#FF5722',
+    padding: 12,
+    borderRadius: 8,
+    width: '48%',
+    alignItems: 'center',
+  },
+  modalButtonSubmit: {
+    backgroundColor: '#4CAF50',
+    padding: 12,
+    borderRadius: 8,
+    width: '48%',
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
