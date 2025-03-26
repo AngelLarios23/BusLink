@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Modal } from "react-native";
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+const { width, height } = Dimensions.get("window");
 
 export default function App() {
   const [saldo, setSaldo] = useState(11.00); // Saldo inicial en pesos
@@ -22,10 +23,12 @@ export default function App() {
     setSaldo((prevSaldo) => prevSaldo + 11);
   };
 
+  
   return (
     <LinearGradient colors={['#1E1E1E', '#333333']} style={styles.container}>
-      <Text style={styles.header}>Consulta tu saldo YoVoy</Text>
-
+      <View style={styles.topBar}>
+        <Text style={styles.title}>Consulta de Saldo</Text>
+      </View>
       {/* TouchableOpacity para todo el contenedor de CLABE */}
       <TouchableOpacity
         style={styles.clabeContainer}
@@ -49,22 +52,6 @@ export default function App() {
         <Text style={styles.historyButtonText}>Ver historial de viajes</Text>
       </TouchableOpacity>
 
-      {mostrarHistorial && (
-        <View style={styles.historialContainer}>
-          <Text style={styles.historialHeader}>Historial de viajes</Text>
-          <FlatList
-            data={historialViajes}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View style={styles.historialItem}>
-                <Text style={styles.historialId}>ID: {item.id}</Text>
-                <Text style={styles.historialText}>Ruta: {item.ruta}</Text>
-                <Text style={styles.historialText}>Pago: ${item.pago.toFixed(2)}</Text>
-              </View>
-            )}
-          />
-        </View>
-      )}
 
       <TouchableOpacity style={styles.button} onPress={recargarSaldo}>
         <MaterialIcons name="add-circle-outline" size={24} color="white" />
@@ -91,25 +78,58 @@ export default function App() {
           </View>
         </View>
       </Modal>
+
+      {/* Modal para mostrar el historial de viajes */}
+      <Modal visible={mostrarHistorial} animationType="slide" transparent={true} onRequestClose={() => setMostrarHistorial(false)}>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalText}>Historial de Viajes</Text>
+            <FlatList
+              data={historialViajes}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <View style={styles.historialItem}>
+                  <Text style={styles.historialId}>ID: {item.id}</Text>
+                  <Text style={styles.historialText}>  |{item.ruta}</Text>
+                  <Text style={styles.historialText}>| Pago: ${item.pago.toFixed(2)}</Text>
+                </View>
+              )}
+            />
+            <TouchableOpacity style={styles.closeButton} onPress={() => setMostrarHistorial(false)}>
+              <Text style={styles.closeButtonText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </LinearGradient>
   );
 }
 
-const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  topBar: {
+    width: "100%",
+    backgroundColor: "#6200EE",
+    paddingVertical: height * 0.02,
     alignItems: "center",
     justifyContent: "center",
-    padding: width * 0.05, // Ajuste con porcentaje
+    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 15,n: 5,
   },
-  header: {
-    fontSize: width * 0.06, // Ajuste con porcentaje
-    fontWeight: "bold",
+  
+  title: {
     color: "white",
-    marginBottom: height * 0.03, // Ajuste con porcentaje
+    fontSize: width * 0.07,
+    fontWeight: "bold",
   },
+/*////////////////////////////////////////////////////*/
+  container: {
+      flex: 1,
+      backgroundColor: "#121212", // Fondo oscuro elegante
+      alignItems: "center",
+      justifyContent: "space-between",
+  },
+/* Cuadro de deposito a esta clabe*/
   clabeContainer: {
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     padding: height * 0.02, // Ajuste con porcentaje
@@ -147,6 +167,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+
+  /*Saldo disponible*/
   balanceLabel: {
     fontSize: width * 0.045, // Ajuste con porcentaje
     color: "#FFF",
@@ -162,13 +184,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#007AFF",
   },
+  /*Para botton de ver historial de viajes*/
   historyButton: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#007AFF",
-    padding: height * 0.02, // Ajuste con porcentaje
+    padding: height * 0.03, // Ajuste con porcentaje
     borderRadius: 10,
-    marginTop: height * 0.03, // Ajuste con porcentaje
+    marginTop: height * 0.001, // Ajuste con porcentaje
     width: "90%",
     justifyContent: "center",
   },
@@ -177,23 +200,8 @@ const styles = StyleSheet.create({
     fontSize: width * 0.045, // Ajuste con porcentaje
     marginLeft: width * 0.02, // Ajuste con porcentaje
   },
-  historialContainer: {
-    marginTop: height * 0.03, // Ajuste con porcentaje
-    width: "90%",
-    backgroundColor: "#fff",
-    padding: height * 0.02, // Ajuste con porcentaje
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  historialHeader: {
-    fontSize: width * 0.045, // Ajuste con porcentaje
-    fontWeight: "bold",
-    marginBottom: height * 0.02, // Ajuste con porcentaje
-  },
+  
+/* Abre las historial de viajes*/
   historialItem: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -204,15 +212,18 @@ const styles = StyleSheet.create({
   historialText: {
     fontSize: width * 0.04, // Ajuste con porcentaje
   },
+
+  /*Botton de Recarga Saldo*/
   button: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#4CAF50",
     padding: height * 0.02, // Ajuste con porcentaje
-    borderRadius: 10,
+    borderRadius: 100,
     marginBottom: height * 0.02, // Ajuste con porcentaje
     justifyContent: "center",
   },
+  
   buttonText: {
     color: "white",
     fontSize: width * 0.045, // Ajuste con porcentaje
@@ -251,4 +262,6 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: width * 0.045, // Ajuste con porcentaje
   },
+
 });
+
