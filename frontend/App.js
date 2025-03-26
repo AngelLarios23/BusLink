@@ -19,6 +19,7 @@ import Calificaciones from './screens/Calificaciones'
 
 
 
+
 import Administrador from './screens/Administrador'
 
 export default function App() {
@@ -45,16 +46,14 @@ function MyStack() {
         headerTitleAlign: "center",
         headerStyle: {backgroundColor: "#525FE1"},
       }} />
-      <Stack.Screen name='Payment' component={Payment}></Stack.Screen>
+      <Stack.Screen name="Payment" component={Payment}></Stack.Screen>
       <Stack.Screen name="BalanceScreen" component={BalanceScreen} />
       <Stack.Screen name="Chats" component={Chats} />
       <Stack.Screen name="Reportes" component={Reportes} />
       <Stack.Screen name="Sugerencias" component={Sugerencias} />
       <Stack.Screen name="Cuestionario" component={Cuestionario} />
       <Stack.Screen name="Chatbot" component={Chatbot} />
- 
       <Stack.Screen name="Calificaciones" component={Calificaciones} />
-
       <Stack.Screen name="Administrador" component={Administrador} />
 
 

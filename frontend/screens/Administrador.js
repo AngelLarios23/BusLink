@@ -41,7 +41,7 @@ const Administrador = ({ navigation }) => {
       <View style={styles.row}>
         <TouchableOpacity
           style={[styles.button, styles.halfWidth]}
-          onPress={() => navigation.navigate('')} // Navegar a AnalisisReportes
+          onPress={() => navigation.navigate('AnalisisReportes')} // Navegar a AnalisisReportes
         >
           <Ionicons name="document-text-outline" size={32} color="#6A5ACD" /> {/* Morado cenizo */}
           <Text style={styles.buttonText}>Reportes</Text>
