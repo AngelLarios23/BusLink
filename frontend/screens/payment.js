@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Modal } from "react-native";
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+
 const { width, height } = Dimensions.get("window");
 
 export default function App() {
@@ -23,13 +24,12 @@ export default function App() {
     setSaldo((prevSaldo) => prevSaldo + 11);
   };
 
-  
   return (
-    <LinearGradient colors={['#1E1E1E', '#333333']} style={styles.container}>
+    <LinearGradient colors={['#87fcf4', '#3f78de']} style={styles.container}>
       <View style={styles.topBar}>
         <Text style={styles.title}>Consulta de Saldo</Text>
       </View>
-      {/* TouchableOpacity para todo el contenedor de CLABE */}
+
       <TouchableOpacity
         style={styles.clabeContainer}
         onPress={() => setMostrarModal(true)} // Abre el modal cuando se presiona
@@ -43,20 +43,6 @@ export default function App() {
         <Text style={styles.balance}>${saldo.toFixed(2)}</Text>
         <Text style={styles.pasajes}>Pasajes disponibles: {pasajes}</Text>
       </View>
-
-      <TouchableOpacity
-        style={styles.historyButton}
-        onPress={() => setMostrarHistorial(!mostrarHistorial)}
-      >
-        <MaterialIcons name="history" size={24} color="white" />
-        <Text style={styles.historyButtonText}>Ver historial de viajes</Text>
-      </TouchableOpacity>
-
-
-      <TouchableOpacity style={styles.button} onPress={recargarSaldo}>
-        <MaterialIcons name="add-circle-outline" size={24} color="white" />
-        <Text style={styles.buttonText}>Recargar saldo</Text>
-      </TouchableOpacity>
 
       {/* Modal para mostrar la CLABE en grande */}
       <Modal
@@ -101,20 +87,35 @@ export default function App() {
           </View>
         </View>
       </Modal>
+
+      {/* Barra inferior con botones */}
+      <View style={styles.bottomBar}>
+        <TouchableOpacity
+          style={styles.bottomButton}
+          onPress={() => setMostrarHistorial(!mostrarHistorial)}
+        >
+          <MaterialIcons name="history" size={24} color="white" />
+          <Text style={styles.bottomButtonText}>Ver historial</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.bottomButton} onPress={recargarSaldo}>
+          <MaterialIcons name="add-circle-outline" size={24} color="white" />
+          <Text style={styles.bottomButtonText}>Recargar saldo</Text>
+        </TouchableOpacity>
+      </View>
     </LinearGradient>
   );
 }
 
-
 const styles = StyleSheet.create({
   topBar: {
     width: "100%",
-    backgroundColor: "#6200EE",
+    backgroundColor: "#a0dcf8",
     paddingVertical: height * 0.02,
     alignItems: "center",
     justifyContent: "center",
     borderBottomLeftRadius: 15,
-    borderBottomRightRadius: 15,n: 5,
+    borderBottomRightRadius: 15,
   },
   
   title: {
@@ -122,19 +123,16 @@ const styles = StyleSheet.create({
     fontSize: width * 0.07,
     fontWeight: "bold",
   },
-/*////////////////////////////////////////////////////*/
   container: {
-      flex: 1,
-      backgroundColor: "#121212", // Fondo oscuro elegante
-      alignItems: "center",
-      justifyContent: "space-between",
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-/* Cuadro de deposito a esta clabe*/
   clabeContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    padding: height * 0.02, // Ajuste con porcentaje
+    backgroundColor: "#daedf5",
+    padding: height * 0.02,
     borderRadius: 10,
-    marginBottom: height * 0.03, // Ajuste con porcentaje
+    marginBottom: height * 0.03,
     alignItems: "center",
     width: "90%",
     shadowColor: "#000",
@@ -144,90 +142,73 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   clabeLabel: {
-    fontSize: width * 0.04, // Ajuste con porcentaje
+    fontSize: width * 0.04,
     fontWeight: "bold",
-    color: "#FFF",
+    color: "#060606",
   },
   clabe: {
-    fontSize: width * 0.045, // Ajuste con porcentaje
-    color: "#007AFF",
+    fontSize: width * 0.045,
+    color: "#060606",
     fontWeight: "bold",
-    marginTop: height * 0.01, // Ajuste con porcentaje
+    marginTop: height * 0.01,
   },
   balanceContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    padding: height * 0.03, // Ajuste con porcentaje
+    backgroundColor: "rgba(232, 177, 177, 0.1)",
+    padding: height * 0.03,
     borderRadius: 10,
     alignItems: "center",
     width: "90%",
-    marginBottom: height * 0.03, // Ajuste con porcentaje
+    marginBottom: height * 0.03,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
   },
-
-  /*Saldo disponible*/
   balanceLabel: {
-    fontSize: width * 0.045, // Ajuste con porcentaje
+    fontSize: width * 0.045,
     color: "#FFF",
   },
   balance: {
-    fontSize: width * 0.08, // Ajuste con porcentaje
+    fontSize: width * 0.1, // Aumento del tamaño del saldo
     fontWeight: "bold",
     color: "#FFF",
-    marginVertical: height * 0.02, // Ajuste con porcentaje
+    marginVertical: height * 0.02,
   },
   pasajes: {
-    fontSize: width * 0.045, // Ajuste con porcentaje
+    fontSize: width * 0.045,
     fontWeight: "bold",
     color: "#007AFF",
   },
-  /*Para botton de ver historial de viajes*/
-  historyButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#007AFF",
-    padding: height * 0.03, // Ajuste con porcentaje
-    borderRadius: 10,
-    marginTop: height * 0.001, // Ajuste con porcentaje
-    width: "90%",
-    justifyContent: "center",
-  },
-  historyButtonText: {
-    color: "white",
-    fontSize: width * 0.045, // Ajuste con porcentaje
-    marginLeft: width * 0.02, // Ajuste con porcentaje
-  },
-  
-/* Abre las historial de viajes*/
   historialItem: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: height * 0.015, // Ajuste con porcentaje
+    paddingVertical: height * 0.015,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
   historialText: {
-    fontSize: width * 0.04, // Ajuste con porcentaje
+    fontSize: width * 0.04,
   },
-
-  /*Botton de Recarga Saldo*/
-  button: {
+  bottomBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    backgroundColor: "#333",
+    paddingVertical: height * 0.02,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
+    paddingHorizontal: width * 0.05,
+  },
+  bottomButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#4CAF50",
-    padding: height * 0.02, // Ajuste con porcentaje
-    borderRadius: 100,
-    marginBottom: height * 0.02, // Ajuste con porcentaje
-    justifyContent: "center",
   },
-  
-  buttonText: {
+  bottomButtonText: {
     color: "white",
-    fontSize: width * 0.045, // Ajuste con porcentaje
-    marginLeft: width * 0.02, // Ajuste con porcentaje
+    fontSize: width * 0.045,
+    marginLeft: width * 0.02,
   },
   modalBackground: {
     flex: 1,
@@ -237,31 +218,29 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     width: "90%",
-    padding: height * 0.03, // Ajuste con porcentaje
+    padding: height * 0.03,
     backgroundColor: "white",
     borderRadius: 10,
     alignItems: "center",
   },
   modalText: {
-    fontSize: width * 0.06, // Ajuste con porcentaje
+    fontSize: width * 0.06,
     fontWeight: "bold",
   },
   modalClabe: {
-    fontSize: width * 0.08, // Ajuste con porcentaje
+    fontSize: width * 0.08,
     fontWeight: "bold",
     color: "#007AFF",
-    marginVertical: height * 0.02, // Ajuste con porcentaje
+    marginVertical: height * 0.02,
   },
   closeButton: {
     backgroundColor: "#FF6347",
-    padding: height * 0.015, // Ajuste con porcentaje
+    padding: height * 0.015,
     borderRadius: 10,
-    marginTop: height * 0.02, // Ajuste con porcentaje
+    marginTop: height * 0.02,
   },
   closeButtonText: {
     color: "white",
-    fontSize: width * 0.045, // Ajuste con porcentaje
+    fontSize: width * 0.045,
   },
-
 });
-
