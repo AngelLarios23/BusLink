@@ -52,9 +52,7 @@ function MyStack() {
       <Stack.Screen name="Sugerencias" component={Sugerencias} />
       <Stack.Screen name="Cuestionario" component={Cuestionario} />
       <Stack.Screen name="Chatbot" component={Chatbot} />
- 
       <Stack.Screen name="Calificaciones" component={Calificaciones} />
-
       <Stack.Screen name="Administrador" component={Administrador} />
 
 

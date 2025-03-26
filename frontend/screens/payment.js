@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Dimensions, Modal } from "react-native";
-import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import AntDesign from '@expo/vector-icons/AntDesign';
+
 
 const { width, height } = Dimensions.get("window");
 
-export default function App() {
+export default function Payment(props) {
   const [saldo, setSaldo] = useState(11.00); // Saldo inicial en pesos
   const [mostrarHistorial, setMostrarHistorial] = useState(false); // Estado para mostrar historial
   const [mostrarModal, setMostrarModal] = useState(false); // Estado para mostrar el modal de CLABE
@@ -28,6 +30,9 @@ export default function App() {
     <LinearGradient colors={['#87fcf4', '#3f78de']} style={styles.container}>
       <View style={styles.topBar}>
         <Text style={styles.title}>Consulta de Saldo</Text>
+        <TouchableOpacity onPress={()=> props.navigation.navigate('Chatbot')}>
+        <AntDesign name="customerservice" marginLeft={10} size={25} color="black" />
+        </TouchableOpacity>
       </View>
 
       <TouchableOpacity
