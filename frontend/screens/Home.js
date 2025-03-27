@@ -70,7 +70,7 @@ export default function Home(props) {
 
       {/* Barra inferior con botones */}
       <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.smallButton} onPress={() => alert('Rutas')}>
+        <TouchableOpacity style={styles.smallButton} onPress={() => props.navigation.navigate('Rutas')}>
           <MaterialIcons name="route" size={30} color="white" />
           <Text style={styles.buttonText}>Rutas</Text>
         </TouchableOpacity>

@@ -42,7 +42,7 @@ export default function Registro(props) {
                     </View>
 
                     <View style={styles.PadreBoton}>
-                        <TouchableOpacity style={styles.cajaBoton} onPress={() => props.navigation.navigate('')}>
+                        <TouchableOpacity style={styles.cajaBoton} onPress={() => props.navigation.navigate('Login')}>
                             <Text style={styles.TextoBoton}>Registrarse</Text>
                         </TouchableOpacity>
                     </View>

@@ -24,6 +24,7 @@ import Cuestionario from './screens/Cuestionario';
 import Chatbot from './screens/Chatbot';
 import Calificaciones from './screens/Calificaciones';
 import Administrador from './screens/Administrador';
+import Rutas from './screens/Rutas';
 
 const Stack = createStackNavigator();
 
@@ -59,6 +60,13 @@ function MyStack() {
           gestureEnabled: false // Deshabilita el gesto de retroceso
         }}
       />
+      <Stack.Screen name="Rutas" component={Rutas} 
+      options={{
+        title: "RUTAS",
+        headerTintColor: "white",
+        headerTitleAlign: "center",
+        headerStyle: {backgroundColor: "#525FE1"}
+      }} />
       <Stack.Screen name="Registro" component={Registro} options={{ title: 'REGISTRO' }} />
       <Stack.Screen name="Payment" component={Payment} options={{ title: 'PAGOS' }} />
       <Stack.Screen name="BalanceScreen" component={BalanceScreen} options={{ title: 'SALDO' }} />
