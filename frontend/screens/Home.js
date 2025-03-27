@@ -33,7 +33,7 @@ export default function Home(props) {
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.balanceButton} onPress={() => props.navigation.navigate('BalanceScreen')}>
-          <Text style={styles.balanceText}>💰 ${saldo} - {pasajes} pasajes</Text>
+          <Text style={styles.balanceText}>💰. ${saldo} - {pasajes} pasajes</Text>
         </TouchableOpacity>
 
         {/* Botón de ayuda (signo de interrogación) CON PIN */}
