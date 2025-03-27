@@ -1,30 +1,56 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  StyleSheet, 
+  ScrollView, 
+  TextInput, 
+  KeyboardAvoidingView, 
+  Platform, 
+  Alert,
+  ActivityIndicator
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ref, push } from 'firebase/database'; // Import Firebase Realtime Database functions
-import { database } from './firebaseConfig'; // Import Firebase configuration
+import { ref, push, serverTimestamp } from 'firebase/database';
+import { db } from '../firebaseConfig';
 
 const Reportes = ({ navigation }) => {
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [userMessage, setUserMessage] = useState('');
   const [showMessageInput, setShowMessageInput] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Save report to Firebase
+  const validateReport = (route, message) => {
+    if (!route || !Number.isInteger(route) || route < 1 || route > 51) {
+      throw new Error('La ruta seleccionada no es válida');
+    }
+    
+    if (!message || message.trim().length < 10) {
+      throw new Error('El mensaje debe tener al menos 10 caracteres');
+    }
+    
+    return true;
+  };
+
   const saveReport = async (route, message) => {
+    setIsSubmitting(true);
     try {
+      validateReport(route, message);
+      
       const reportData = {
         route: `Ruta ${route}`,
-        message: message,
-        timestamp: new Date().toISOString(),
+        message: message.trim(),
+        timestamp: serverTimestamp(),
+        status: 'pending'
       };
 
-      // Save to Realtime Database
-      const reportsRef = ref(database, 'reports');
+      const reportsRef = ref(db, 'reports');
       await push(reportsRef, reportData);
 
       Alert.alert(
         'Reporte enviado',
-        'Gracias por hacer el reporte, tu opinión es muy importante para mejorar.',
+        'Gracias por tu reporte. Tu opinión es muy importante para mejorar nuestro servicio.',
         [
           {
             text: 'OK',
@@ -37,11 +63,13 @@ const Reportes = ({ navigation }) => {
         ]
       );
     } catch (error) {
-      console.error('Error al guardar el reporte:', error);
+      console.error('Error saving report:', error);
       Alert.alert(
         'Error',
-        error.message || 'No se pudo enviar el reporte. Inténtalo de nuevo.'
+        error.message || 'No se pudo enviar el reporte. Inténtalo de nuevo más tarde.'
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -51,8 +79,8 @@ const Reportes = ({ navigation }) => {
   };
 
   const handleSendReport = () => {
-    if (userMessage.trim() === '') {
-      Alert.alert('Error', 'Por favor, escribe tu reporte.');
+    if (!userMessage.trim()) {
+      Alert.alert('Error', 'Por favor, escribe tu reporte antes de enviar.');
       return;
     }
     saveReport(selectedRoute, userMessage);
@@ -62,13 +90,12 @@ const Reportes = ({ navigation }) => {
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
+      keyboardVerticalOffset={90}
     >
-      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerText}>Reportes</Text>
+        <Text style={styles.headerText}>Reportes de Rutas</Text>
       </View>
 
-      {/* Route List */}
       <ScrollView
         contentContainerStyle={styles.optionsContainer}
         keyboardShouldPersistTaps="handled"
@@ -76,110 +103,153 @@ const Reportes = ({ navigation }) => {
         {Array.from({ length: 51 }, (_, i) => i + 1).map((route) => (
           <TouchableOpacity
             key={route}
-            style={styles.optionButton}
+            style={[
+              styles.optionButton,
+              selectedRoute === route && styles.selectedOption
+            ]}
             onPress={() => handleRouteSelection(route)}
           >
-            <Ionicons name="bus-outline" size={24} color="#075E54" />
+            <Ionicons name="bus-outline" size={24} color="#806480" />
             <Text style={styles.optionText}>Ruta {route}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
 
-      {/* Message Input */}
       {showMessageInput && (
         <View style={styles.messageContainer}>
-          <Text style={styles.chofiMessage}>
-            Chofi: ¿Cuál sería tu reporte acerca de la Ruta {selectedRoute}?
+          <Text style={styles.promptText}>
+            Por favor, describe tu reporte sobre la Ruta {selectedRoute}:
           </Text>
           <TextInput
             style={styles.input}
-            placeholder="Escribe tu reporte aquí..."
+            placeholder="Ej: El autobús llegó 20 minutos tarde..."
             placeholderTextColor="#888"
             multiline
+            numberOfLines={4}
             value={userMessage}
             onChangeText={setUserMessage}
+            editable={!isSubmitting}
           />
-          <TouchableOpacity style={styles.sendButton} onPress={handleSendReport}>
-            <Text style={styles.sendButtonText}>Enviar</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity 
+              style={[styles.button, styles.cancelButton]}
+              onPress={() => {
+                setShowMessageInput(false);
+                setSelectedRoute(null);
+              }}
+              disabled={isSubmitting}
+            >
+              <Text style={styles.buttonText}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.button, styles.submitButton, (!userMessage.trim() || isSubmitting) && styles.disabledButton]}
+              onPress={handleSendReport}
+              disabled={isSubmitting || !userMessage.trim()}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Enviar Reporte</Text>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
       )}
     </KeyboardAvoidingView>
   );
 };
 
-// Styles actualizados con colores negro y azul
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000', // Fondo negro
+    backgroundColor: '#000',
   },
   header: {
-    backgroundColor: '#023265', // Azul oscuro
+    backgroundColor: '#121212',
     paddingVertical: 20,
     paddingHorizontal: 16,
-    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#806480',
   },
   headerText: {
-    color: '#fff', // Texto blanco
-    fontSize: 20,
+    color: '#806480',
+    fontSize: 22,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   optionsContainer: {
     padding: 16,
+    paddingBottom: 100,
   },
   optionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1a1a1a', // Fondo gris oscuro
+    backgroundColor: '#1E1E1E',
     padding: 16,
-    borderRadius: 10,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderRadius: 8,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#2D2D2D',
+  },
+  selectedOption: {
+    borderColor: '#806480',
+    backgroundColor: '#252525',
   },
   optionText: {
     marginLeft: 16,
     fontSize: 16,
-    color: '#fff', // Texto blanco
+    color: '#FFF',
     fontWeight: '500',
   },
   messageContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#121212',
     padding: 16,
-    backgroundColor: '#1a1a1a', // Fondo gris oscuro
     borderTopWidth: 1,
-    borderTopColor: '#023265', // Borde azul oscuro
+    borderTopColor: '#806480',
   },
-  chofiMessage: {
+  promptText: {
+    color: '#806480',
     fontSize: 16,
-    color: '#fff', // Texto blanco
-    marginBottom: 16,
-    fontWeight: '500',
+    marginBottom: 12,
   },
   input: {
-    backgroundColor: '#333', // Fondo gris más oscuro
+    backgroundColor: '#1E1E1E',
+    color: '#FFF',
     padding: 16,
-    borderRadius: 10,
-    marginBottom: 16,
-    height: 100,
+    borderRadius: 8,
+    minHeight: 120,
     textAlignVertical: 'top',
     borderWidth: 1,
-    borderColor: '#023265', // Borde azul oscuro
-    color: '#fff', // Texto blanco
-    placeholderTextColor: '#888',
+    borderColor: '#2D2D2D',
+    marginBottom: 16,
   },
-  sendButton: {
-    backgroundColor: '#023265', // Azul oscuro
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  button: {
+    flex: 1,
     padding: 16,
-    borderRadius: 10,
+    borderRadius: 8,
     alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 4,
   },
-  sendButtonText: {
-    color: '#fff', // Texto blanco
-    fontSize: 16,
+  cancelButton: {
+    backgroundColor: '#2D2D2D',
+  },
+  submitButton: {
+    backgroundColor: '#806480',
+  },
+  disabledButton: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: '#FFF',
     fontWeight: 'bold',
   },
 });

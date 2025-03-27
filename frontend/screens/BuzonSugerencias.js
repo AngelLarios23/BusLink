@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity, Modal } from 'react-native';
 import { ref, onValue } from 'firebase/database';
-import { database } from './firebaseConfig'; // Asegúrate de importar tu configuración de Firebase
+import { database } from '../firebaseConfig'; // Asegúrate de importar tu configuración de Firebase
 import { Ionicons } from '@expo/vector-icons'; // Importar íconos
 
 const BuzonSugerencias = () => {

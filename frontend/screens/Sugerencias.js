@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getDatabase, ref, push } from 'firebase/database'; // Para Realtime Database
-import { database } from './firebaseConfig'; // Importa la configuración de Firebase
+import { database } from '../firebaseConfig'; // Importa la configuración de Firebase
 
 const Sugerencias = ({ navigation }) => {
   const [messages, setMessages] = useState([

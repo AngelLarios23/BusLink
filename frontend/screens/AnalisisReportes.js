@@ -1,294 +1,334 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity, Modal } from 'react-native';
-import { ref, onValue } from 'firebase/database';
-import { database } from './firebaseConfig'; // Asegúrate de que la ruta de importación sea correcta
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Importar íconos
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { 
+  View, 
+  Text, 
+  FlatList, 
+  StyleSheet, 
+  ActivityIndicator, 
+  TouchableOpacity, 
+  Modal,
+  RefreshControl
+} from 'react-native';
+import { ref, onValue, off } from 'firebase/database';
+import { db } from '../firebaseConfig';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
+const ANALISIS_CONFIG = {
+  palabrasPositivas: ["bueno", "excelente", "genial", "puntual", "rápido", "cómodo", "limpio"],
+  palabrasNegativas: ["malo", "terrible", "horrible", "tarde", "sucio", "lento", "incomodo"],
+  stopwords: ["de", "la", "que", "el", "en", "y", "a", "los", "del", "se", "las", "por", "un", "para"]
+};
 
 const AnalisisReportes = () => {
-  const [reportes, setReportes] = useState([]); // Estado para almacenar los reportes
-  const [loading, setLoading] = useState(true); // Estado para manejar la carga
-  const [modalVisible, setModalVisible] = useState(false); // Estado para mostrar/ocultar el modal de filtros
-  const [filtro, setFiltro] = useState("ruta"); // Estado para almacenar el filtro seleccionado
+  const [reportes, setReportes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [filtro, setFiltro] = useState('recientes');
+  const [showFilters, setShowFilters] = useState(false);
 
-  // Listas de palabras clave para el análisis de sentimientos
-  const palabrasPositivas = [
-    "bueno", "excelente", "genial", "feliz", "contento", "satisfecho", "maravilloso", "agradable", "perfecto", "increíble",
-    "rápido", "amable", "gentil", "educado", "buen", "bien", "capacitado", "puntual", "eficiente", "organizado",
-    "limpio", "fresco", "moderno", "cómodo", "seguro", "atento", "respetuoso"
-  ];
-
-  const palabrasNegativas = [
-    "malo", "terrible", "horrible", "triste", "enojado", "frustrado", "molesto", "feo", "huele", "cola", "pésimo", "desagradable",
-    "sobaco", "axila", "patas", "colgada", "culero", "chingada", "chingadera", "sucio", "asqueroso", "cochino", "podrido", "basura",
-    "grosero", "maleducado", "irrespetuoso", "desconsiderado", "abusivo", "tarde", "retrasado", "ineficiente", "lento", "desorganizado",
-    "viejo", "destartalado", "roto", "descompuesto", "inseguro", "incómodo", "pinche", "mierda", "cagada"
-  ];
-
-  // Lista de stopwords en español
-  const stopwords = [
-    "de", "la", "que", "el", "en", "y", "a", "los", "del", "se", "las", "por", "un", "para", "con", "no", "una", "su", "al", "es", "lo", "como", "más", "pero", "sus", "le", "ya", "o", "fue", "este", "ha", "sí", "porque", "esta", "son", "entre", "está", "cuando", "muy", "sin", "sobre", "ser", "tiene", "también", "me", "hasta", "hay", "donde", "quien", "desde", "todo", "nos", "durante", "estados", "todos", "uno", "les", "ni", "contra", "otros", "fueron", "ese", "eso", "ante", "ellos", "e", "esto", "mí", "antes", "algunos", "qué", "unos", "yo", "otro", "otras", "otra", "él", "tanto", "esa", "estos", "mucho", "quienes", "nada", "muchos", "cual", "sea", "poco", "ella", "estar", "había", "estas", "estaba", "estamos", "algunas", "algo", "nosotros"
-  ];
-
-  // Función para eliminar stopwords de un mensaje
-  const eliminarStopwords = (mensaje) => {
-    return mensaje
-      .toLowerCase()
-      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "") // Eliminar signos de puntuación
-      .split(" ") // Dividir el mensaje en palabras
-      .filter((palabra) => !stopwords.includes(palabra)) // Eliminar stopwords
-      .join(" "); // Unir las palabras restantes
-  };
-
-  // Función para analizar el sentimiento del mensaje
-  const analizarSentimiento = (mensaje) => {
-    if (!mensaje) return "neutral"; // Si no hay mensaje, devolver neutral
-
-    const mensajeLimpio = eliminarStopwords(mensaje); // Eliminar stopwords
-    const palabras = mensajeLimpio.split(" "); // Dividir el mensaje en palabras
+  const analizarSentimiento = useCallback((texto = '') => {
+    const palabras = texto.toLowerCase()
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
+      .split(/\s+/)
+      .filter(palabra => 
+        palabra.length > 2 && 
+        !ANALISIS_CONFIG.stopwords.includes(palabra)
+      );
+    
     let puntaje = 0;
-
-    // Contar palabras positivas y negativas
-    palabras.forEach((palabra) => {
-      if (palabrasPositivas.includes(palabra)) {
-        puntaje += 1;
-      } else if (palabrasNegativas.includes(palabra)) {
-        puntaje -= 1;
-      }
+    palabras.forEach(palabra => {
+      if (ANALISIS_CONFIG.palabrasPositivas.includes(palabra)) puntaje++;
+      if (ANALISIS_CONFIG.palabrasNegativas.includes(palabra)) puntaje--;
     });
 
-    // Determinar el sentimiento basado en el puntaje
-    if (puntaje > 0) {
-      return "positivo";
-    } else if (puntaje < 0) {
-      return "negativo";
-    } else {
-      return "neutral";
-    }
-  };
+    const exclamacionesPositivas = (texto.match(/!+/g) || []).length;
+    const exclamacionesNegativas = (texto.match(/¡+/g) || []).length;
+    
+    puntaje += exclamacionesPositivas * 0.5;
+    puntaje -= exclamacionesNegativas * 0.5;
 
-  // Obtener los reportes de Firebase
-  useEffect(() => {
-    const reportesRef = ref(database, 'reports'); // Ruta correcta: 'reports'
-    console.log("Ruta de Firebase:", reportesRef.toString()); // Depuración: Verifica la ruta
+    return puntaje > 1 ? 'positivo' : puntaje < -1 ? 'negativo' : 'neutral';
+  }, []);
 
-    onValue(reportesRef, (snapshot) => {
-      const data = snapshot.val();
-      console.log("Datos obtenidos de Firebase:", data); // Depuración: Verifica qué datos se están obteniendo
+  const fetchReportes = useCallback(() => {
+    const reportsRef = ref(db, 'reports');
+    setLoading(true);
 
-      if (data) {
-        // Convertir el objeto de reportes en un array
-        const reportesArray = Object.keys(data).map((key) => ({
-          id: key, // Usar el ID único de Firebase como clave
-          ...data[key], // Copiar el resto de los datos del reporte
-          sentimiento: analizarSentimiento(data[key].message), // Agregar el sentimiento al reporte
+    const unsubscribe = onValue(reportsRef, (snapshot) => {
+      try {
+        const data = snapshot.val();
+        if (!data) {
+          setReportes([]);
+          return;
+        }
+
+        const reportesArray = Object.entries(data).map(([id, report]) => ({
+          id,
+          ...report,
+          sentimiento: analizarSentimiento(report.message),
+          fecha: report.timestamp ? new Date(report.timestamp).toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }) : 'Sin fecha'
         }));
 
-        console.log("Reportes antes de ordenar:", reportesArray); // Depuración: Verifica los datos antes de ordenar
-
-        // Aplicar el filtro seleccionado
-        const reportesFiltrados = aplicarFiltro(reportesArray, filtro);
-
-        // Actualizar el estado con los reportes filtrados y ordenados
-        setReportes(reportesFiltrados);
-      } else {
-        // Si no hay datos, establecer el estado como un array vacío
-        setReportes([]);
+        setReportes(reportesArray);
+      } catch (error) {
+        console.error("Error procesando datos:", error);
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-      setLoading(false); // Finalizar la carga
-    }, (error) => {
-      console.error("Error al obtener los reportes:", error); // Manejo de errores
-      setLoading(false); // Finalizar la carga incluso si hay un error
     });
-  }, [filtro]); // El efecto se ejecuta cuando cambia el filtro
 
-  // Función para aplicar el filtro seleccionado
-  const aplicarFiltro = (reportesArray, filtro) => {
-    let reportesFiltrados = [...reportesArray]; // Crear una copia del array original
+    return () => off(reportsRef, 'value', unsubscribe);
+  }, [analizarSentimiento]);
 
+  useEffect(() => {
+    const unsubscribe = fetchReportes();
+    return unsubscribe;
+  }, [fetchReportes]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchReportes();
+  };
+
+  const reportesFiltrados = useMemo(() => {
+    const copia = [...reportes];
     switch (filtro) {
-      case "ruta":
-        reportesFiltrados.sort((a, b) => (a.route || "").localeCompare(b.route || ""));
-        break;
-      case "positivos":
-        reportesFiltrados = reportesFiltrados.filter((item) => item.sentimiento === "positivo");
-        break;
-      case "negativos":
-        reportesFiltrados = reportesFiltrados.filter((item) => item.sentimiento === "negativo");
-        break;
-      case "neutrales":
-        reportesFiltrados = reportesFiltrados.filter((item) => item.sentimiento === "neutral");
-        break;
-      case "masViejo":
-        reportesFiltrados.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-        break;
-      case "masActual":
-        reportesFiltrados.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        break;
+      case 'recientes': 
+        return copia.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      case 'antiguos':
+        return copia.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+      case 'positivos':
+        return copia.filter(r => r.sentimiento === 'positivo');
+      case 'negativos':
+        return copia.filter(r => r.sentimiento === 'negativo');
       default:
-        break;
+        return copia;
     }
+  }, [reportes, filtro]);
 
-    return reportesFiltrados;
-  };
-
-  // Formatear la fecha y hora
-  const formatDateTime = (timestamp) => {
-    if (!timestamp) return 'Fecha no disponible';
-    const date = new Date(timestamp); // Convertir la cadena a un objeto Date
-    return date.toLocaleString(); // Formato legible (fecha y hora local)
-  };
-
-  // Renderizar cada reporte
-  const renderReporte = ({ item }) => (
-    <View style={styles.reporteItem}>
-      <Text style={styles.reporteText}>Ruta: {item.route}</Text> {/* Usar `route` */}
-      <Text style={styles.reporteText}>Descripción: {item.message}</Text> {/* Usar `message` */}
-      <Text style={styles.reporteText}>Fecha y Hora: {formatDateTime(item.timestamp)}</Text>
-      <Text style={[
-        styles.reporteText,
-        item.sentimiento === "positivo" && styles.sentimientoPositivo,
-        item.sentimiento === "negativo" && styles.sentimientoNegativo,
-        item.sentimiento === "neutral" && styles.sentimientoNeutral,
-      ]}>
-        Sentimiento: {item.sentimiento}
-      </Text>
+  const ReporteItem = React.memo(({ item }) => (
+    <View style={styles.item}>
+      <View style={styles.itemHeader}>
+        <Text style={styles.ruta}>{item.route}</Text>
+        <Text style={[
+          styles.sentimiento,
+          item.sentimiento === 'positivo' && styles.positivo,
+          item.sentimiento === 'negativo' && styles.negativo
+        ]}>
+          {item.sentimiento.toUpperCase()}
+        </Text>
+      </View>
+      <Text style={styles.mensaje}>{item.message}</Text>
+      <View style={styles.footer}>
+        <Text style={styles.usuario}>{item.usuarioEmail}</Text>
+        <Text style={styles.fecha}>{item.fecha}</Text>
+      </View>
     </View>
-  );
+  ));
 
-  // Mostrar un indicador de carga mientras se obtienen los datos
-  if (loading) {
+  if (loading && !refreshing) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#806480" /> {/* Cambiado a morado cenizo */}
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" color="#806480" />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Botón de filtro */}
-      <TouchableOpacity style={styles.filtroButton} onPress={() => setModalVisible(true)}>
-        <Icon name="filter-list" size={30} color="#806480" /> {/* Cambiado a morado cenizo */}
-      </TouchableOpacity>
+      <View style={styles.header}>
+        <Text style={styles.title}>Análisis de Reportes</Text>
+        <TouchableOpacity onPress={() => setShowFilters(true)}>
+          <Icon name="filter-list" size={28} color="#806480" />
+        </TouchableOpacity>
+      </View>
 
-      {/* Modal de filtros */}
-      <Modal
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
+      <FlatList
+        data={reportesFiltrados}
+        renderItem={({ item }) => <ReporteItem item={item} />}
+        keyExtractor={item => item.id}
+        ListEmptyComponent={
+          <Text style={styles.empty}>No hay reportes disponibles</Text>
+        }
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#806480']}
+            tintColor="#806480"
+          />
+        }
+        contentContainerStyle={styles.listContent}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+      />
+
+      <Modal visible={showFilters} transparent animationType="slide">
+        <View style={styles.modal}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Filtrar por:</Text>
-            <TouchableOpacity onPress={() => { setFiltro("ruta"); setModalVisible(false); }}>
-              <Text style={styles.modalOption}>Ruta</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => { setFiltro("positivos"); setModalVisible(false); }}>
-              <Text style={styles.modalOption}>Solo positivos</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => { setFiltro("negativos"); setModalVisible(false); }}>
-              <Text style={styles.modalOption}>Solo negativos</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => { setFiltro("neutrales"); setModalVisible(false); }}>
-              <Text style={styles.modalOption}>Solo neutrales</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => { setFiltro("masViejo"); setModalVisible(false); }}>
-              <Text style={styles.modalOption}>Más viejo al más actual</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => { setFiltro("masActual"); setModalVisible(false); }}>
-              <Text style={styles.modalOption}>Más actual al más viejo</Text>
+            {['recientes', 'antiguos', 'positivos', 'negativos'].map(opcion => (
+              <TouchableOpacity 
+                key={opcion} 
+                style={styles.filterOption}
+                onPress={() => {
+                  setFiltro(opcion);
+                  setShowFilters(false);
+                }}
+              >
+                <Text style={styles.filterText}>{opcion.charAt(0).toUpperCase() + opcion.slice(1)}</Text>
+                {filtro === opcion && <Icon name="check" size={20} color="#806480" />}
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity 
+              style={styles.closeButton}
+              onPress={() => setShowFilters(false)}
+            >
+              <Text style={styles.closeButtonText}>Cerrar</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-
-      <Text style={styles.title}>Reportes Ordenados por {filtro}</Text>
-      {reportes.length > 0 ? (
-        <FlatList
-          data={reportes}
-          renderItem={renderReporte}
-          keyExtractor={(item) => item.id} // Usar el ID único de Firebase como clave
-          contentContainerStyle={styles.reportesList}
-        />
-      ) : (
-        <Text style={styles.noReportesText}>No hay reportes registrados.</Text>
-      )}
     </View>
   );
 };
 
-// Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000', // Fondo negro
+    backgroundColor: '#000'
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#806480',
+    backgroundColor: '#121212'
   },
-  title: {
-    color: '#806480', // Morado cenizo
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  reportesList: {
-    paddingBottom: 20,
-  },
-  reporteItem: {
-    backgroundColor: '#1a1a1a', // Un tono más claro de negro para los elementos
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  reporteText: {
-    color: '#fff', // Texto blanco para contraste
-    fontSize: 14,
-    marginBottom: 5,
-  },
-  noReportesText: {
-    color: '#806480', // Morado cenizo
-    fontSize: 16,
-    textAlign: 'center',
-    marginTop: 20,
-  },
-  sentimientoPositivo: {
-    color: '#4CAF50', // Verde para sentimiento positivo
-  },
-  sentimientoNegativo: {
-    color: '#F44336', // Rojo para sentimiento negativo
-  },
-  sentimientoNeutral: {
-    color: '#FFEB3B', // Amarillo para sentimiento neutral
-  },
-  filtroButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    zIndex: 1,
-  },
-  modalContainer: {
+  loading: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fondo semitransparente
+    backgroundColor: '#000'
+  },
+  title: {
+    color: '#806480',
+    fontSize: 20,
+    fontWeight: 'bold'
+  },
+  listContent: {
+    paddingBottom: 20
+  },
+  item: {
+    padding: 16,
+    margin: 8,
+    backgroundColor: '#1E1E1E',
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#2D2D2D'
+  },
+  itemHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8
+  },
+  ruta: {
+    color: '#806480',
+    fontWeight: 'bold',
+    fontSize: 16
+  },
+  mensaje: {
+    color: '#FFF',
+    marginVertical: 8,
+    lineHeight: 22
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8
+  },
+  usuario: {
+    color: '#888',
+    fontSize: 12,
+    fontStyle: 'italic'
+  },
+  fecha: {
+    color: '#888',
+    fontSize: 12
+  },
+  sentimiento: {
+    fontWeight: 'bold',
+    fontSize: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    overflow: 'hidden'
+  },
+  positivo: {
+    color: '#4CAF50',
+    backgroundColor: 'rgba(76, 175, 80, 0.1)'
+  },
+  negativo: {
+    color: '#F44336',
+    backgroundColor: 'rgba(244, 67, 54, 0.1)'
+  },
+  modal: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)'
   },
   modalContent: {
-    backgroundColor: '#1a1a1a', // Un tono más claro de negro para el modal
+    backgroundColor: '#121212',
     padding: 20,
     borderRadius: 10,
-    width: '80%',
+    width: '80%'
   },
   modalTitle: {
-    color: '#806480', // Morado cenizo
+    color: '#806480',
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 15,
+    textAlign: 'center'
   },
-  modalOption: {
-    color: '#fff', // Texto blanco para contraste
-    fontSize: 16,
-    paddingVertical: 10,
+  filterOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2D2D2D'
   },
+  filterText: {
+    color: '#FFF'
+  },
+  closeButton: {
+    marginTop: 15,
+    padding: 10,
+    backgroundColor: '#806480',
+    borderRadius: 5,
+    alignItems: 'center'
+  },
+  closeButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold'
+  },
+  empty: {
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16
+  }
 });
 
-export default AnalisisReportes;
+export default React.memo(AnalisisReportes);

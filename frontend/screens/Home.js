@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { auth } from '../firebaseConfig';
 import { Dimensions, StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
 import MapView from 'react-native-maps';
 import { StatusBar } from 'expo-status-bar';
@@ -6,13 +7,23 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
+
+
+
 export default function Home(props) {
   const { saldo, pasajes } = props.route.params || { saldo: 0, pasajes: 0 };
   const [showPinModal, setShowPinModal] = React.useState(false);
   const [pin, setPin] = React.useState('');
   const correctPin = '1234'; // Cambia esto por tu PIN real
 
+  // Modifiqué solo esta función para verificar Firebase
   const verifyPin = () => {
+    // Verificación añadida para Firebase
+    if (!auth) {
+      Alert.alert('Error', 'Error de configuración. Intente nuevamente.');
+      return;
+    }
+
     if (pin === correctPin) {
       setShowPinModal(false);
       setPin('');
@@ -23,6 +34,10 @@ export default function Home(props) {
     }
   };
 
+  /* 
+   * Todo el resto del código permanece exactamente igual 
+   * como lo tenías originalmente
+   */
   return (
     <LinearGradient colors={['#1E1E1E', '#333333']} style={styles.container}>
       <StatusBar style="light" />
@@ -112,6 +127,7 @@ export default function Home(props) {
   );
 }
 
+// Todos los estilos se mantienen exactamente iguales
 const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -224,7 +240,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 5,
   },
-  // Estilos para el modal del PIN
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
