@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 30,
     borderWidth: 3,
-    borderColor: '#FFD700',
+    borderColor: 'orange',
   },
   profileButton: {
     padding: 5,
@@ -192,12 +192,12 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgb(0, 255, 64)',
+    backgroundColor: 'rgba(255, 0, 0, 0)',
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#FFD700',
+    borderColor: 'orange',
   },
   smallButton: {
     alignItems: 'center',
