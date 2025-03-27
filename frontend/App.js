@@ -25,6 +25,7 @@ import Chatbot from './screens/Chatbot';
 import Calificaciones from './screens/Calificaciones';
 import Administrador from './screens/Administrador';
 import Rutas from './screens/Rutas';
+import Perfil from './screens/Perfil';
 
 const Stack = createStackNavigator();
 
@@ -48,18 +49,19 @@ function MyStack() {
         name="Login" 
         component={Login} 
         options={{ 
-          title: 'INICIAR SESIÓN',
+          title: 'LOGIN',
           headerLeft: () => null // Elimina el botón de retroceso
         }}
       />
-      <Stack.Screen 
-        name="Home" 
-        component={Home}
+      <Stack.Screen  name="Home" component={Home}
         options={{ 
           headerShown: false,
-          gestureEnabled: false // Deshabilita el gesto de retroceso
-        }}
-      />
+          gestureEnabled: false, // Deshabilita el gesto de retroceso
+          title: "HOME",
+          headerTintColor: "white",
+          headerTitleAlign: "center",
+          headerStyle: {backgroundColor: "#525FE1"}
+        }}/>
       <Stack.Screen name="Rutas" component={Rutas} 
       options={{
         title: "RUTAS",
@@ -67,6 +69,13 @@ function MyStack() {
         headerTitleAlign: "center",
         headerStyle: {backgroundColor: "#525FE1"}
       }} />
+      <Stack.Screen name="Perfil" component={Perfil} 
+            options={{
+              title: "PERFIL",
+              headerTintColor: "white",
+              headerTitleAlign: "center",
+              headerStyle: {backgroundColor: "#525FE1"},
+            }} />
       <Stack.Screen name="Registro" component={Registro} options={{ title: 'REGISTRO' }} />
       <Stack.Screen name="Payment" component={Payment} options={{ title: 'PAGOS' }} />
       <Stack.Screen name="BalanceScreen" component={BalanceScreen} options={{ title: 'SALDO' }} />

@@ -38,12 +38,22 @@ export default function Home(props) {
    * Todo el resto del código permanece exactamente igual 
    * como lo tenías originalmente
    */
+
+  const perfil = async ()=>{
+    try {
+      props.navigation.navigate('Perfil')
+    } catch (error) {
+        console.log(error);
+        Alert.alert('Error', 'No se puede acceder al perfil')
+    }
+}
+
   return (
     <LinearGradient colors={['#1E1E1E', '#333333']} style={styles.container}>
       <StatusBar style="light" />
       {/* Barra superior con perfil y saldo */}
       <View style={styles.topBar}>
-        <TouchableOpacity style={styles.profileButton} onPress={() => alert('Perfil')}>
+        <TouchableOpacity style={styles.profileButton} onPress={perfil}>
           <Ionicons name="person-circle-outline" size={40} color="white" />
         </TouchableOpacity>
 
