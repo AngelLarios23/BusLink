@@ -8,18 +8,30 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-
-
-
 export default function Home(props) {
   const { saldo, pasajes } = props.route.params || { saldo: 0, pasajes: 0 };
   const [showPinModal, setShowPinModal] = React.useState(false);
   const [pin, setPin] = React.useState('');
   const correctPin = '1234'; // Cambia esto por tu PIN real
 
-  // Modifiqué solo esta función para verificar Firebase
+  const [location, setLocation] = React.useState(null);
+  const [errorMsg, setErrorMsg] = React.useState(null);
+
+  // Obtener la ubicación del usuario
+  React.useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permiso de ubicación denegado');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location.coords);
+    })();
+  }, []);
+
   const verifyPin = () => {
-    // Verificación añadida para Firebase
     if (!auth) {
       Alert.alert('Error', 'Error de configuración. Intente nuevamente.');
       return;
@@ -35,40 +47,20 @@ export default function Home(props) {
     }
   };
 
-  /* 
-   * Todo el resto del código permanece exactamente igual 
-   * como lo tenías originalmente
-   */
-const [location, setLocation] = React.useState(null);
-const [errorMsg, setErrorMsg] = React.useState(null);
-
-  React.useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permiso de ubicación denegado');
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location.coords);
-    })();
-  }, []);
-
-
-  const perfil = async ()=>{
+  const perfil = async () => {
     try {
-      props.navigation.navigate('Perfil')
+      props.navigation.navigate('Perfil');
     } catch (error) {
-        console.log(error);
-        Alert.alert('Error', 'No se puede acceder al perfil')
+      console.log(error);
+      Alert.alert('Error', 'No se puede acceder al perfil');
     }
-}
+  };
 
   return (
     <LinearGradient colors={['#1E1E1E', '#333333']} style={styles.container}>
       <StatusBar style="light" />
-      {/* Barra superior con perfil y saldo */}
+
+      {/* Barra superior */}
       <View style={styles.topBar}>
         <TouchableOpacity style={styles.profileButton} onPress={perfil}>
           <Ionicons name="person-circle-outline" size={40} color="white" />
@@ -78,16 +70,12 @@ const [errorMsg, setErrorMsg] = React.useState(null);
           <Text style={styles.balanceText}>💰. ${saldo} - {pasajes} pasajes</Text>
         </TouchableOpacity>
 
-        {/* Botón de ayuda (signo de interrogación) CON PIN */}
-        <TouchableOpacity 
-          style={styles.helpButton} 
-          onPress={() => setShowPinModal(true)}
-        >
+        <TouchableOpacity style={styles.helpButton} onPress={() => setShowPinModal(true)}>
           <Ionicons name="help-circle-outline" size={40} color="white" />
         </TouchableOpacity>
       </View>
 
-      {/* Mapa en el centro con funcionalidad de botón */}
+      {/* Mapa con ubicación del usuario */}
       <View style={styles.mapContainer}>
         <MapView
           style={styles.map}
@@ -110,7 +98,8 @@ const [errorMsg, setErrorMsg] = React.useState(null);
           )}
         </MapView>
       </View>
-      {/* Barra inferior con botones */}
+
+      {/* Barra inferior */}
       <View style={styles.bottomBar}>
         <TouchableOpacity style={styles.smallButton} onPress={() => props.navigation.navigate('Rutas')}>
           <MaterialIcons name="route" size={30} color="white" />
@@ -129,12 +118,7 @@ const [errorMsg, setErrorMsg] = React.useState(null);
       </View>
 
       {/* Modal para el PIN */}
-      <Modal
-        visible={showPinModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowPinModal(false)}
-      >
+      <Modal visible={showPinModal} transparent={true} animationType="slide" onRequestClose={() => setShowPinModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Ingrese PIN de administrador</Text>
@@ -149,16 +133,10 @@ const [errorMsg, setErrorMsg] = React.useState(null);
               placeholderTextColor="#999"
             />
             <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={styles.modalButtonCancel}
-                onPress={() => setShowPinModal(false)}
-              >
+              <TouchableOpacity style={styles.modalButtonCancel} onPress={() => setShowPinModal(false)}>
                 <Text style={styles.modalButtonText}>Cancelar</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.modalButtonSubmit}
-                onPress={verifyPin}
-              >
+              <TouchableOpacity style={styles.modalButtonSubmit} onPress={verifyPin}>
                 <Text style={styles.modalButtonText}>Aceptar</Text>
               </TouchableOpacity>
             </View>
@@ -169,7 +147,6 @@ const [errorMsg, setErrorMsg] = React.useState(null);
   );
 }
 
-// Todos los estilos se mantienen exactamente iguales
 const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -234,12 +211,6 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 0, 0, 0)',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: 'orange',
   },
   smallButton: {
     alignItems: 'center',
@@ -250,17 +221,6 @@ const styles = StyleSheet.create({
     width: width * 0.25,
     height: width * 0.25,
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: 5,
   },
   bigButton: {
     backgroundColor: '#FF5722',
@@ -269,71 +229,6 @@ const styles = StyleSheet.create({
     borderRadius: width * 0.15,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#FF5722',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 6,
-    borderWidth: 2,
-    borderColor: 'white',
-  },
-  bigButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 5,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
-  },
-  modalContent: {
-    width: '80%',
-    backgroundColor: '#333',
-    borderRadius: 10,
-    padding: 20,
-    borderWidth: 2,
-    borderColor: '#FFD700',
-  },
-  modalTitle: {
-    color: '#FFA500',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  pinInput: {
-    backgroundColor: '#1a1a1a',
-    color: 'white',
-    fontSize: 18,
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 20,
-    textAlign: 'center',
-    borderWidth: 1,
-    borderColor: '#FFA500',
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  modalButtonCancel: {
-    backgroundColor: '#FF5722',
-    padding: 12,
-    borderRadius: 8,
-    width: '48%',
-    alignItems: 'center',
-  },
-  modalButtonSubmit: {
-    backgroundColor: '#4CAF50',
-    padding: 12,
-    borderRadius: 8,
-    width: '48%',
-    alignItems: 'center',
-  },
-  modalButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
   },
 });
+
