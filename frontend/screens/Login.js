@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Text, StyleSheet, View, Image, TextInput, TouchableOpacity, Alert} from 'react-native';
-import appFirebase from '../firebaseConfig';
-import {getAuth, signInWithEmailAndPassword} from 'firebase/auth'
-const auth = getAuth(appFirebase)
+import appFirebase from '../credenciales';
+import {getAuth, signInWithEmailAndPassword} from 'firebase/auth';
+const auth = getAuth(appFirebase);
 
 export default function Login(props) {
 
@@ -34,7 +34,7 @@ export default function Login(props) {
                 </View>
 
                 <View style={styles.PadreBoton}>
-                    <TouchableOpacity style={styles.cajaBoton}  onPress={() => props.navigation.navigate('Home')}>
+                    <TouchableOpacity style={styles.cajaBoton}  onPress={logueo}>
                         <Text style={styles.TextoBoton}>Sign In</Text>
                     </TouchableOpacity>
                 </View> 

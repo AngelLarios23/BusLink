@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { auth } from '../firebaseConfig';
 import { Dimensions, StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';

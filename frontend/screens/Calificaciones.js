@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ref, push, onValue } from 'firebase/database';
-import { database } from '../firebaseConfig';
 
 const Calificaciones = ({ navigation }) => {
   const [selectedRoute, setSelectedRoute] = useState(null);

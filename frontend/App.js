@@ -4,13 +4,6 @@ import { StyleSheet, LogBox } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-// 1. Configuración inicial de Firebase (debe ir primero)
-import { app, auth, db } from './firebaseConfig';
-LogBox.ignoreLogs([
-  'Setting a timer',
-  'AsyncStorage has been extracted from react-native core'
-]);
-
 // 3. Importar pantallas
 import Login from './screens/Login';
 import Home from './screens/Home';
@@ -107,4 +100,3 @@ const styles = StyleSheet.create({
 });
 
 // Exporta las instancias de Firebase para usar en otros componentes
-export { app, auth, db };

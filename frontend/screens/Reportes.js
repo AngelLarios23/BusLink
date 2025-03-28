@@ -12,8 +12,6 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ref, push, serverTimestamp } from 'firebase/database';
-import { db } from '../firebaseConfig';
 
 const Reportes = ({ navigation }) => {
   const [selectedRoute, setSelectedRoute] = useState(null);

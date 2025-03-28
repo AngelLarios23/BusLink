@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
 import { Text, StyleSheet, View, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
-import appFirebase from '../firebaseConfig';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-
+import appFirebase from '../credenciales';
+import {getAuth, signInWithEmailAndPassword} from 'firebase/auth';
 const auth = getAuth(appFirebase);
 
 export default function Registro(props) {
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
 
- 
+const register = async ()=>{
+        try {
+            await signInWithEmailAndPassword(auth, email, password)
+            props.navigation.navigate('Login')
+            Alert.alert('Usuario registrado con exito')
+        } catch (error) {
+            console.log(error);
+            Alert.alert('Favor de llenar los campos')
+        }
+    }
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.padre}>
@@ -42,7 +50,7 @@ export default function Registro(props) {
                     </View>
 
                     <View style={styles.PadreBoton}>
-                        <TouchableOpacity style={styles.cajaBoton} onPress={() => props.navigation.navigate('Login')}>
+                        <TouchableOpacity style={styles.cajaBoton} onPress={register}>
                             <Text style={styles.TextoBoton}>Registrarse</Text>
                         </TouchableOpacity>
                     </View>
