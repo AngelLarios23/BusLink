@@ -39,7 +39,7 @@ function Chatbot() {
           botResponse = "BusLink es una plataforma que te permite conocer todas las rutas y horarios de las unidades de transporte público. Así puedes planificar mejor tus viajes.";
           break;
         case "¿Cómo puedo recargar mi tarjeta YoVoy?":
-          botResponse = "Para recargar tu tarjeta YoVoy, puedes hacerlo a través de la aplicación YoVoy o en puntos físicos autorizados.";
+          botResponse = "Para recargar tu tarjeta YoVoy en la aplicación, necesitas realizar una transferencia bancaria a la CLABE asignada en la app. Una vez recibido el depósito, el sistema detectará automáticamente el monto y actualizará tu saldo, indicando cuántos viajes tienes disponibles. Además, puedes recargar tu tarjeta en tiendas de conveniencia como OXXO y otros establecimientos autorizados. Es importante recordar que la tarjeta YoVoy es de uso exclusivo para el transporte público y es necesaria para realizar tus pagos en los camiones.";  
           break;
         case "¿Cómo puedo llegar a mi destino?":
           botResponse = "Puedes usar la función de BusLink para ver las rutas que te llevan a tu destino y elegir la opción más rápida y conveniente.";
