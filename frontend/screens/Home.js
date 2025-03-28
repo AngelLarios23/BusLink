@@ -95,8 +95,8 @@ const [errorMsg, setErrorMsg] = React.useState(null);
           showsUserLocation={true}
           followsUserLocation={true}
           initialRegion={{
-            latitude: location ? location.latitude : 20.6597,
-            longitude: location ? location.longitude : -103.3496,
+            latitude: location ? location.latitude : 21.8392447,
+            longitude: location ? location.longitude : -102.3563873,
             latitudeDelta: 0.02,
             longitudeDelta: 0.02,
           }}
