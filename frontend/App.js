@@ -57,7 +57,7 @@ function MyStack() {
         }}/>
       <Stack.Screen name="Rutas" component={Rutas} 
       options={{
-        title: "RUTAS",
+        title: "RUTAS Y PARADAS",
         headerTintColor: "white",
         headerTitleAlign: "center",
         headerStyle: {backgroundColor: "#525FE1"}

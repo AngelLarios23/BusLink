@@ -182,17 +182,6 @@ export default function Rutas({ navigation }) {
     <LinearGradient colors={['#1E1E1E', '#333333']} style={styles.container}>
       <StatusBar style="light" />
       
-      <TouchableOpacity 
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
-      >
-        <Ionicons name="arrow-back" size={28} color="white" />
-      </TouchableOpacity>
-      
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>Rutas y Paradas</Text>
-      </View>
-      
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#FFD700" />

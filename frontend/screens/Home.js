@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Dimensions, StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
+import { Dimensions, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { StatusBar } from 'expo-status-bar';
@@ -7,39 +7,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-
-
-
 export default function Home(props) {
-  const { saldo, pasajes } = props.route.params || { saldo: 0, pasajes: 0 };
-  const [showPinModal, setShowPinModal] = React.useState(false);
-  const [pin, setPin] = React.useState('');
-  const correctPin = '1234'; // Cambia esto por tu PIN real
-
-  // Modifiqué solo esta función para verificar Firebase
-  const verifyPin = () => {
-    // Verificación añadida para Firebase
-    if (!auth) {
-      Alert.alert('Error', 'Error de configuración. Intente nuevamente.');
-      return;
-    }
-
-    if (pin === correctPin) {
-      setShowPinModal(false);
-      setPin('');
-      props.navigation.navigate('Administrador');
-    } else {
-      Alert.alert('Error', 'PIN incorrecto');
-      setPin('');
-    }
-  };
-
-  /* 
-   * Todo el resto del código permanece exactamente igual 
-   * como lo tenías originalmente
-   */
-const [location, setLocation] = React.useState(null);
-const [errorMsg, setErrorMsg] = React.useState(null);
+  const { saldo, pasajes } = props.route.params || { saldo: 1, pasajes: 1};
+  const [location, setLocation] = React.useState(null);
+  const [errorMsg, setErrorMsg] = React.useState(null);
 
   React.useEffect(() => {
     (async () => {
@@ -54,15 +25,14 @@ const [errorMsg, setErrorMsg] = React.useState(null);
     })();
   }, []);
 
-
-  const perfil = async ()=>{
+  const perfil = async () => {
     try {
-      props.navigation.navigate('Perfil')
+      props.navigation.navigate('Perfil');
     } catch (error) {
-        console.log(error);
-        Alert.alert('Error', 'No se puede acceder al perfil')
+      console.log(error);
+      Alert.alert('Error', 'No se puede acceder al perfil');
     }
-}
+  }
 
   return (
     <LinearGradient colors={['#1E1E1E', '#333333']} style={styles.container}>
@@ -77,10 +47,10 @@ const [errorMsg, setErrorMsg] = React.useState(null);
           <Text style={styles.balanceText}>💰. ${saldo} - {pasajes} pasajes</Text>
         </TouchableOpacity>
 
-        {/* Botón de ayuda (signo de interrogación) CON PIN */}
+        {/* Botón de ayuda directo (sin PIN) */}
         <TouchableOpacity 
           style={styles.helpButton} 
-          onPress={() => setShowPinModal(true)}
+          onPress={() => props.navigation.navigate('Administrador')}
         >
           <Ionicons name="help-circle-outline" size={40} color="white" />
         </TouchableOpacity>
@@ -109,6 +79,7 @@ const [errorMsg, setErrorMsg] = React.useState(null);
           )}
         </MapView>
       </View>
+
       {/* Barra inferior con botones */}
       <View style={styles.bottomBar}>
         <TouchableOpacity style={styles.smallButton} onPress={() => props.navigation.navigate('Rutas')}>
@@ -126,49 +97,11 @@ const [errorMsg, setErrorMsg] = React.useState(null);
           <Text style={styles.buttonText}>Ayuda</Text>
         </TouchableOpacity>
       </View>
-
-      {/* Modal para el PIN */}
-      <Modal
-        visible={showPinModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowPinModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Ingrese PIN de administrador</Text>
-            <TextInput
-              style={styles.pinInput}
-              value={pin}
-              onChangeText={setPin}
-              keyboardType="numeric"
-              secureTextEntry
-              maxLength={4}
-              placeholder="PIN"
-              placeholderTextColor="#999"
-            />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={styles.modalButtonCancel}
-                onPress={() => setShowPinModal(false)}
-              >
-                <Text style={styles.modalButtonText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.modalButtonSubmit}
-                onPress={verifyPin}
-              >
-                <Text style={styles.modalButtonText}>Aceptar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </LinearGradient>
   );
 }
 
-// Todos los estilos se mantienen exactamente iguales
+// Estilos (eliminé los relacionados con el modal del PIN)
 const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -280,59 +213,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 5,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
-  },
-  modalContent: {
-    width: '80%',
-    backgroundColor: '#333',
-    borderRadius: 10,
-    padding: 20,
-    borderWidth: 2,
-    borderColor: '#FFD700',
-  },
-  modalTitle: {
-    color: '#FFA500',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  pinInput: {
-    backgroundColor: '#1a1a1a',
-    color: 'white',
-    fontSize: 18,
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 20,
-    textAlign: 'center',
-    borderWidth: 1,
-    borderColor: '#FFA500',
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  modalButtonCancel: {
-    backgroundColor: '#FF5722',
-    padding: 12,
-    borderRadius: 8,
-    width: '48%',
-    alignItems: 'center',
-  },
-  modalButtonSubmit: {
-    backgroundColor: '#4CAF50',
-    padding: 12,
-    borderRadius: 8,
-    width: '48%',
-    alignItems: 'center',
-  },
-  modalButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
   },
 });
