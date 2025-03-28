@@ -25,21 +25,21 @@ export default function Login(props) {
             <Image source={require('../assets/Buslink.jpg')} style={styles.profile}></Image>
             <View style={styles.tarjeta}>
                 <View style={styles.cajaTexto}>
-                    <TextInput placeholder='correo@gmail.com' style={{paddingHorizontal:15}} 
-                    onChangeText={(text)=>setEmail(text)} />
+                    <TextInput placeholder='correo@gmail.com' style={{ paddingHorizontal: 15 }}
+                        onChangeText={(text) => setEmail(text)} />
                 </View>
                 <View style={styles.cajaTexto}>
-                    <TextInput placeholder='Contraseña' style={{paddingHorizontal:15}} 
-                    onChangeText={(text)=>setPassword(text)} secureTextEntry={true}/>
+                    <TextInput placeholder='Contraseña' style={{ paddingHorizontal: 15 }}
+                        onChangeText={(text) => setPassword(text)} secureTextEntry={true} />
                 </View>
 
                 <View style={styles.PadreBoton}>
-                    <TouchableOpacity style={styles.cajaBoton}  onPress={logueo}>
+                    <TouchableOpacity style={styles.cajaBoton} onPress={logueo}>
                         <Text style={styles.TextoBoton}>Sign In</Text>
                     </TouchableOpacity>
-                </View> 
+                </View>
 
-                <View style={styles.PadreBoton}> 
+                <View style={styles.PadreBoton}>
                     <TouchableOpacity style={styles.cajaBoton} onPress={() => props.navigation.navigate('Registro')}>
                         <Text style={styles.TextoBoton}>Registrarse</Text>
                     </TouchableOpacity>
@@ -50,58 +50,58 @@ export default function Login(props) {
 }
 
 const styles = StyleSheet.create({
-    padre:{
-        flex:1,
-        justifyContent:'center',
-        alignItems:'center',
-        backgroundColor:'white'
+    padre: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white'
     },
 
-    profile:{
+    profile: {
         width: 200,
         height: 100,
-        borderColor:'white'
+        borderColor: 'white'
     },
 
-    tarjeta:{
+    tarjeta: {
         margin: 20,
-        backgroundColor:'white',
-        borderRadius:20,
-        width:'90%',
-        padding:20,
-        shadowColor:'#000',
-        shadowOffset:{
-            width:0,
-            height:2
+        backgroundColor: 'white',
+        borderRadius: 20,
+        width: '90%',
+        padding: 20,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2
         },
-        shadowOpacity:0.25,
-        shadowRadius:4,
-        elevation:5
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
     },
 
-    cajaTexto:{
-        paddingVertical:20,
-        backgroundColor:'#cccccc40',
-        borderRadius:30,
-        marginVertical:10
+    cajaTexto: {
+        paddingVertical: 20,
+        backgroundColor: '#cccccc40',
+        borderRadius: 30,
+        marginVertical: 10
     },
 
-    PadreBoton:{
-        alignItems:'center',
+    PadreBoton: {
+        alignItems: 'center',
 
     },
 
-    cajaBoton:{
-        backgroundColor:'#525FE1',
-        borderRadius:30,
-        paddingVertical:20,
-        width:150,
-        marginTop:20
+    cajaBoton: {
+        backgroundColor: '#525FE1',
+        borderRadius: 30,
+        paddingVertical: 20,
+        width: 150,
+        marginTop: 20
     },
 
-    TextoBoton:{
-        textAlign:'center',
-        color:'white',
+    TextoBoton: {
+        textAlign: 'center',
+        color: 'white',
 
     }
 });

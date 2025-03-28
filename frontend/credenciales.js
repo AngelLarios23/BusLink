@@ -8,6 +8,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyD26g6bGq37lUSey_JgvCXpTNkW8HxlSX4",
   authDomain: "buslink-62c41.firebaseapp.com",
   projectId: "buslink-62c41",
+  databaseURL:"https://buslink-62c41-default-rtdb.firebaseio.com/",
   storageBucket: "buslink-62c41.firebasestorage.app",
   messagingSenderId: "579154312115",
   appId: "1:579154312115:web:cdd940c3fec1a16a6929c6"

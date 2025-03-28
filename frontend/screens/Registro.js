@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { Text, StyleSheet, View, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import appFirebase from '../credenciales';
-import {getAuth, signInWithEmailAndPassword} from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword  } from 'firebase/auth';
 const auth = getAuth(appFirebase);
+import { getDatabase, ref, set } from 'firebase/database';
+
 
 export default function Registro(props) {
-    const [email, setEmail] = useState();
-    const [password, setPassword] = useState();
-
-const register = async ()=>{
+    const db = getDatabase(appFirebase);
+    
+    const [data, setData] = useState({});
+    
+    const onChange = (texto,prop)=>{
+        const newData = data;
+        newData[prop] = texto;
+        setData(newData)
+    }
+    
+    const register = async () => {
         try {
-            await signInWithEmailAndPassword(auth, email, password)
+            const {user} = await createUserWithEmailAndPassword(auth, data.email, data.password)
+            const userRef = ref(db, `users/${user.uid}`);
+            
+            set(userRef,data).then(()=>console.log("Se guardaron los datos en la DB")).catch(()=>console.log("Algo salio mal con la DB"))
             props.navigation.navigate('Login')
             Alert.alert('Usuario registrado con exito')
         } catch (error) {
@@ -23,30 +35,30 @@ const register = async ()=>{
             <View style={styles.padre}>
                 <View style={styles.tarjeta}>
                     <View style={styles.cajaTexto}>
-                        <TextInput placeholder='Nombres' style={{ paddingHorizontal: 15 }} />
+                        <TextInput onChangeText={(t)=>onChange(t,"name")} placeholder='Nombres' style={{ paddingHorizontal: 15 }} />
                     </View>
                     <View style={styles.cajaTexto}>
-                        <TextInput placeholder='Apellido Paterno' style={{ paddingHorizontal: 15 }} />
+                        <TextInput onChangeText={(t)=>onChange(t,"apepat")} placeholder='Apellido Paterno' style={{ paddingHorizontal: 15 }} />
                     </View>
                     <View style={styles.cajaTexto}>
-                        <TextInput placeholder='Apellido Materno' style={{ paddingHorizontal: 15 }} />
+                        <TextInput onChangeText={(t)=>onChange(t,"apemat")} placeholder='Apellido Materno' style={{ paddingHorizontal: 15 }} />
                     </View>
                     <View style={styles.cajaTexto}>
-                        <TextInput placeholder='Fecha de Nacimiento' style={{ paddingHorizontal: 15 }} />
+                        <TextInput onChangeText={(t)=>onChange(t,"fecnac")} placeholder='Fecha de Nacimiento' style={{ paddingHorizontal: 15 }} />
                     </View>
                     <View style={styles.cajaTexto}>
-                        <TextInput placeholder='CURP' style={{ paddingHorizontal: 15 }} />
+                        <TextInput onChangeText={(t)=>onChange(t,"curp")} placeholder='CURP' style={{ paddingHorizontal: 15 }} />
                     </View>
                     <View style={styles.cajaTexto}>
-                        <TextInput placeholder='Folio de la Tarjeta' style={{ paddingHorizontal: 15 }} />
+                        <TextInput onChangeText={(t)=>onChange(t,"folio")} placeholder='Folio de la Tarjeta' style={{ paddingHorizontal: 15 }} />
                     </View>
                     <View style={styles.cajaTexto}>
                         <TextInput placeholder='correo@gmail.com' style={{ paddingHorizontal: 15 }}
-                            onChangeText={(text) => setEmail(text)} />
+                            onChangeText={(t) => onChange(t,"email")} />
                     </View>
                     <View style={styles.cajaTexto}>
                         <TextInput placeholder='Contraseña' style={{ paddingHorizontal: 15 }}
-                            onChangeText={(text) => setPassword(text)} secureTextEntry={true} />
+                            onChangeText={(t) => onChange(t,"password")} secureTextEntry={true} />
                     </View>
 
                     <View style={styles.PadreBoton}>
